@@ -3,7 +3,7 @@ project(footsteps C)
 
 set(CMAKE_C_STANDARD 11)
 
-add_executable(footsteps footsteps.c)
+add_executable(footsteps effects.h effects.c footsteps.c)
 if (WIN32)
 	target_link_libraries(footsteps OpenAL32.dll sndfile m)
 else()

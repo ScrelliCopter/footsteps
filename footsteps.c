@@ -24,6 +24,7 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <AL/alext.h>
+#include "effects.h"
 
 bool running = true;
 
@@ -71,7 +72,7 @@ float FrandRange ( float a_from, float a_to )
 
 int main ( int argc, char* argv[] )
 {
-	//LoadProc ();
+	LoadProc ();
 	
 	/* current position and where to walk to... start just 1m ahead */
 	float pos[2] = { 0.0f, -1.0f };
@@ -82,6 +83,13 @@ int main ( int argc, char* argv[] )
 	ALCdevice* device = alcOpenDevice (NULL);
 	ALCcontext* context = alcCreateContext ( device, contextAttr );
 	alcMakeContextCurrent ( context );
+	
+	// Check EFX
+	if ( !alcIsExtensionPresent(alcGetContextsDevice ( alcGetCurrentContext () ), "ALC_EXT_EFX" ) )
+    {
+        fprintf(stderr, "Error: EFX not supported\n");
+        return 1;
+    }
 	
 	/* listener at origin, facing down -z (ears at 1.5m height) */
 	alListener3f ( AL_POSITION, 0.0f, 1.5, 0.0f );
@@ -117,7 +125,16 @@ int main ( int argc, char* argv[] )
 		LoadWave ( memes[i], path );
 	}
 	
+	// what
+	EFXEAXREVERBPROPERTIES reverb = EFX_REVERB_PRESET_GENERIC;
+	ALuint efx = LoadEffect ( &reverb );
+	ALuint efxSlot = 0;
+	alGenAuxiliaryEffectSlots ( 1, &efxSlot );
+	alAuxiliaryEffectSloti ( efxSlot, AL_EFFECTSLOT_EFFECT, efx );
+	
 	alSourcei ( source, AL_BUFFER, buffer );
+	alSource3i ( source, AL_AUXILIARY_SEND_FILTER, efxSlot, 0, AL_FILTER_NULL );
+	alSource3i ( srcMemes, AL_AUXILIARY_SEND_FILTER, efxSlot, 0, AL_FILTER_NULL );
 	
 	/* state initializations for the upcoming loop */
 	srand ( (int) time (NULL) );
