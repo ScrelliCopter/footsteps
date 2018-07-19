@@ -26,6 +26,33 @@
 #include <AL/alext.h>
 #include "effects.h"
 
+int CheckAlError ()
+{
+	ALenum alErrCode = alGetError ();
+	
+	if ( alErrCode != AL_NO_ERROR )
+	{
+		const char* errStr = NULL;
+		switch ( alErrCode )
+		{
+		case ( AL_INVALID_NAME ):      errStr = "AL_INVALID_NAME"; break;
+		case ( AL_INVALID_ENUM ):      errStr = "AL_INVALID_ENUM"; break;
+		case ( AL_INVALID_VALUE ):     errStr = "AL_INVALID_VALUE"; break;
+		case ( AL_INVALID_OPERATION ): errStr = "AL_INVALID_OPERATION"; break;
+		case ( AL_OUT_OF_MEMORY ):     errStr = "AL_OUT_OF_MEMORY"; break;
+		
+		default:
+			errStr = "UNKNOWN";
+			break;
+		}
+		
+		fprintf ( stderr, "OpenAL error %04X: %s\n", alErrCode, errStr );
+		return alErrCode;
+	}
+
+	return 0;
+}
+
 bool running = true;
 
 void RequestClose ( int a )
@@ -72,22 +99,39 @@ float FrandRange ( float a_from, float a_to )
 
 int main ( int argc, char* argv[] )
 {
-	LoadProc ();
+	if ( LoadProc () )
+	{
+		return -1;
+	}
 	
 	/* current position and where to walk to... start just 1m ahead */
 	float pos[2] = { 0.0f, -1.0f };
 	float tgt[2] = { 0.0f, -1.0f };
 	
 	/* initialize OpenAL context, asking for 44.1kHz to match HRIR data */
-	ALCint contextAttr[] = { ALC_FREQUENCY, 44100, 0 };
-	ALCdevice* device = alcOpenDevice (NULL);
-	ALCcontext* context = alcCreateContext ( device, contextAttr );
+	//ALCint contextAttr[] = { ALC_FREQUENCY, 44100, 0 };
+	ALCdevice* device = alcOpenDevice ( NULL );
+	if ( device == NULL )
+	{
+		return -1;
+	}
+	
+	ALCcontext* context = alcCreateContext ( device, NULL );
+	if ( context == NULL )
+	{
+		return -1;
+	}
+	
 	alcMakeContextCurrent ( context );
+	if ( CheckAlError () )
+	{
+		return -1;
+	}
 	
 	// Check EFX
-	if ( !alcIsExtensionPresent(alcGetContextsDevice ( alcGetCurrentContext () ), "ALC_EXT_EFX" ) )
+	if ( !alcIsExtensionPresent(alcGetContextsDevice ( alcGetCurrentContext () ), "ALC_EXT_EFX" ) || CheckAlError () )
     {
-        fprintf(stderr, "Error: EFX not supported\n");
+        fprintf ( stderr, "Error: EFX not supported\n" );
         return 1;
     }
 	
