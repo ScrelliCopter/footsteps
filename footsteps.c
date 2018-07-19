@@ -26,6 +26,33 @@
 #include <AL/alext.h>
 #include "effects.h"
 
+static EFXEAXREVERBPROPERTIES memeverb =
+{
+	/* flDensity;             */ 1.0000f,
+	/* flDiffusion;           */ 1.0000f,
+	/* flGain;                */ 0.1000f,
+	/* flGainHF;              */ 0.7500f,
+	/* flGainLF;              */ 1.0000f,
+	/* flDecayTime;           */ 1.5900f,
+	/* flDecayHFRatio;        */ 0.8300f,
+	/* flDecayLFRatio;        */ 1.0000f,
+	/* flReflectionsGain;     */ 0.0500f,
+	/* flReflectionsDelay;    */ 0.0070f,
+	/* flReflectionsPan[3];   */ { 0.0000f, 0.0000f, 0.0000f },
+	/* flLateReverbGain;      */ 1.2589f,
+	/* flLateReverbDelay;     */ 0.0110f,
+	/* flLateReverbPan[3];    */ { 0.0000f, 0.0000f, 0.0000f },
+	/* flEchoTime;            */ 0.1250f,
+	/* flEchoDepth;           */ 0.0000f,
+	/* flModulationTime;      */ 0.2500f,
+	/* flModulationDepth;     */ 0.0000f,
+	/* flAirAbsorptionGainHF; */ 0.9943f,
+	/* flHFReference;         */ 3000.0000f,
+	/* flLFReference;         */ 150.0000f,
+	/* flRoomRolloffFactor;   */ 0.0000f,
+	/* iDecayHFLimit;         */ 0x1
+};
+
 int CheckAlError ()
 {
 	ALenum alErrCode = alGetError ();
@@ -170,8 +197,8 @@ int main ( int argc, char* argv[] )
 	}
 	
 	// what
-	EFXEAXREVERBPROPERTIES reverb = EFX_REVERB_PRESET_GENERIC;
-	ALuint efx = LoadEffect ( &reverb );
+	//EFXEAXREVERBPROPERTIES reverb = EFX_REVERB_PRESET_PIPE_LARGE;
+	ALuint efx = LoadEffect ( &memeverb );
 	ALuint efxSlot = 0;
 	alGenAuxiliaryEffectSlots ( 1, &efxSlot );
 	alAuxiliaryEffectSloti ( efxSlot, AL_EFFECTSLOT_EFFECT, efx );
