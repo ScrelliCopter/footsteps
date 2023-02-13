@@ -1,10 +1,10 @@
 #ifndef __EFFECTS_H__
 #define __EFFECTS_H__
 
-#include <AL/al.h>
-#include <AL/alc.h>
-#include <AL/alext.h>
-#include <AL/efx-presets.h>
+#include "al.h"
+#include "alc.h"
+#include "alext.h"
+#include "efx-presets.h"
 
 /* Effect object functions */
 extern LPALGENEFFECTS alGenEffects;
